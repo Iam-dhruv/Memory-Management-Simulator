@@ -51,15 +51,14 @@ Example Session:
 
 # 1. Initialize 1024 bytes of physical RAM
 > init standard 1024
-
+Standard Allocator Initialized (1024 bytes).
 # 2. Set Strategy to Best Fit (Default is First Fit)
 > set allocator best
-
 # 3. Allocate memory
 > malloc 100
-Allocated 100 bytes at Address 0
+Allocated 100 bytes at 0 (ID = 1)
 > malloc 200
-Allocated 200 bytes at Address 100
+Allocated 200 bytes at 100 (ID = 2)
 
 # 4. Free memory (by Address)
 > free 100
@@ -67,9 +66,10 @@ Block at Address 100 freed.
 
 # 5. Inspect memory map
 > dump
-[0 - 99] USED
-[100 - 299] FREE
-[300 - 1023] FREE
+--- Memory Dump ---
+[0 - 99] USED (ID=1)
+[100 - 1023] FREE
+-------------------
 ```
 ### Mode 2: Cache Simulation (Physical Addressing)
 Focus: Cache hits, misses, and associativity.
@@ -84,10 +84,11 @@ Example Session:
 
 # 1. Init Memory
 > init standard 1024
-
+Standard Allocator Initialized (1024 bytes).
 # 2. Init Cache: Size=64B, Block=16B, Associativity=2-Way
 > init_cache 64 16 2
-
+Cache Initialized (L1: 64B, L2: 512B).
+-> Linked to Active Memory.
 # 3. Access Physical Address 10 (Read)
 > access 10 r
 --- L2 MISS! Accessing Main Memory ---

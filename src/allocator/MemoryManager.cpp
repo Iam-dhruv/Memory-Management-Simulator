@@ -84,7 +84,7 @@ int MemorySimulator::my_malloc(int requested_size) {
     int allocated_id = next_id_counter;
     next_id_counter++;
     successful_allocations++;
-    std::cout << "Allocated ID " << allocated_id << " at " << best_block->start_address << "\n";
+    std::cout << "Allocated " << best_block->size << " bytes at " << best_block->start_address << " (ID = " <<allocated_id<< ")\n";
     return best_block->start_address;
 }
 
@@ -165,7 +165,7 @@ bool MemorySimulator::my_free(int physical_address) {
             current->is_free = true;
             current->id = -1; // Reset ID
             found = true;
-            std::cout << "Block at address " << physical_address << " freed by MMU.\n";
+            std::cout << "Block at address " << physical_address << " freed.\n";
             break; 
         }
         current = current->next;
