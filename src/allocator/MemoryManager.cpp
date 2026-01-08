@@ -1,7 +1,6 @@
 #include <iostream>
-#include "../../include/MemoryManager.h" // Import the blueprint
+#include "../../include/MemoryManager.h" 
 
-// Constructor Implementation
 MemorySimulator::MemorySimulator(int size) {
     total_memory_size = size;
     next_id_counter = 1;
@@ -12,7 +11,6 @@ MemorySimulator::MemorySimulator(int size) {
 void MemorySimulator::set_strategy(AllocationStrategy strategy){
     current_strategy = strategy;
 }
-// Malloc Implementation (First Fit)
 int MemorySimulator::my_malloc(int requested_size) {
     total_allocations++;
     Block* best_block = nullptr;
@@ -92,56 +90,20 @@ void MemorySimulator::merge_free_blocks() {
     Block* current = head;
 
     while (current != nullptr && current->next != nullptr) {
-        // Check if THIS block and the NEXT block are both FREE
         if (current->is_free && current->next->is_free) {
             
-            // 1. Combine sizes
             current->size += current->next->size;
             
-            // 2. Remove the next block from the list
             Block* temp = current->next;
             current->next = current->next->next;
             
-            // 3. Delete the C++ object (cleanup)
-            delete temp; 
-
-            // IMPORTANT: Do NOT advance 'current' yet.
-            // We just created a bigger block. We need to check if 
-            // this NEW bigger block can merge with the *next* one too.
+            delete temp;     
         } else {
-            // Only move forward if we didn't merge
             current = current->next;
         }
     }
 }
-// bool MemorySimulator::my_free(int block_id) {
-//     Block* current = head;
-//     bool found = false;
 
-//     // Step 1: Find the block
-//     while (current != nullptr) {
-//         if (!current->is_free && current->id == block_id) {
-//             // Found it! Mark as free.
-//             current->is_free = true;
-//             current->id = -1; // Reset ID
-//             found = true;
-//             std::cout << "Block " << block_id << " freed.\n";
-//             break; 
-//         }
-//         current = current->next;
-//     }
-
-//     // Step 2: If found, merge neighbors
-//     if (found) {
-//         merge_free_blocks();
-//         return true;
-//     } else {
-//         std::cout << "Error: Block ID " << block_id << " not found or already free.\n";
-//         return false;
-//     }
-// }
-
-// Add to MemorySimulator class
 bool MemorySimulator::is_allocated(int addr) {
     Block* current = head;
     while (current != nullptr) {
