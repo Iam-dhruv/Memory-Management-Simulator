@@ -156,8 +156,7 @@ void CacheLevel::print_stats() {
 
 // --- CacheController Implementation ---
 
-CacheController::CacheController(CacheLevel *l1, CacheLevel *l2,
-                                 MemorySimulator *sm)
+CacheController::CacheController(CacheLevel *l1, CacheLevel *l2, MemorySimulator *sm)
     : L1(l1), L2(l2), std_mem(sm) {}
 
 CacheController::~CacheController() {

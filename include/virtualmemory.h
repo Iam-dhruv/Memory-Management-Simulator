@@ -7,11 +7,10 @@
 #include "Cache.h"
 #include "MemoryManager.h"
 
-// Struct for a single entry in the Page Table
 struct PageTableEntry {
-    bool valid;          // Is it in Physical Memory?
-    int frame_start_addr; // The Physical Address where this page starts
-    bool dirty;          // Has it been written to?
+    bool valid;          
+    int frame_start_addr; 
+    bool dirty;          
     int last_access_time;// For LRU Page Replacement
 
     PageTableEntry() : valid(false), frame_start_addr(-1), dirty(false), last_access_time(0) {}

@@ -92,13 +92,8 @@ void MMU::evict_victim() {
     if (victim_vpn != -1) {
         // Free the Physical Memory
         int frame_addr = page_table[victim_vpn].frame_start_addr;
+        if (std_mem) std_mem->my_free(frame_addr); 
         
-        if (std_mem) std_mem->my_free(frame_addr); // Note: Standard mem needs ID, this might need a lookup map in a real OS.
-        // *Correction*: Standard Memory uses IDs. For simplicity in simulation, 
-        // we'd need to track which Block ID corresponds to this Frame Addr. 
-        // For Buddy, address is enough.
-        
-
         // Update Page Table
         page_table[victim_vpn].valid = false;
         if (page_table[victim_vpn].dirty) {
