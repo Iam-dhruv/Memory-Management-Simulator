@@ -24,4 +24,112 @@ This project uses a standard `Makefile` for compilation.
 ### Compilation
 Run the following command in the root directory:
 ```bash
-make
+make 
+```
+To run the simulator:
+
+```bash
+./memsim
+```
+To clean build artifacts:
+
+```bash
+
+make clean
+```
+##📖 Usage Modes
+The simulator is flexible and can be run in three distinct modes depending on which components you initialize.
+
+###Mode 1: Physical Memory Allocator (Malloc/Free)
+Focus: Understanding fragmentation and allocation strategies.
+
+In this mode, you interact directly with physical memory. You can allocate blocks, free them, and observe how different strategies (First Fit, Best Fit, Worst Fit) affect memory layout and fragmentation.
+
+Example Session:
+
+```bash
+
+# 1. Initialize 1024 bytes of physical RAM
+> init standard 1024
+
+# 2. Set Strategy to Best Fit (Default is First Fit)
+> set allocator best
+
+# 3. Allocate memory
+> malloc 100
+Allocated 100 bytes at Address 0
+> malloc 200
+Allocated 200 bytes at Address 100
+
+# 4. Free memory (by Address)
+> free 100
+Block at Address 100 freed.
+
+# 5. Inspect memory map
+> dump
+[0 - 99] USED
+[100 - 299] FREE
+[300 - 1023] FREE
+```
+###Mode 2: Cache Simulation (Physical Addressing)
+Focus: Cache hits, misses, and associativity.
+
+In this mode, you enable the Cache Controller. Memory accesses are simulated as Physical Addresses. You can see how data moves from Main Memory → L2 → L1.
+
+Prerequisite: You must initialize memory first.
+
+Example Session:
+
+```bash
+
+# 1. Init Memory
+> init standard 1024
+
+# 2. Init Cache: Size=64B, Block=16B, Associativity=2-Way
+> init_cache 64 16 2
+
+# 3. Access Physical Address 10 (Read)
+> access 10 r
+--- L2 MISS! Accessing Main Memory ---
+>> Main Memory: Fetching data...
+Access 10 (read) processed.
+
+# 4. Access Address 10 again (Should be a HIT)
+> access 10 r
+Access 10 (read) processed.
+
+# 5. View Stats
+> cache_stats
+L1 Stats: Hits: 1, Misses: 1, Hit Rate: 50.00%
+```
+###Mode 3: Full System (Virtual Memory + MMU)
+Focus: Paging, Address Translation, and Page Faults.
+
+This is the complete simulation. You issue Virtual Addresses. The MMU translates them to Physical Addresses (handling Page Faults if necessary), and then requests data from the Cache.
+
+Flow: User (Virtual Addr) → MMU → Physical Addr → Cache → RAM.
+
+Example Session:
+
+```bash
+
+# 1. Init Memory & Cache
+> init standard 1024
+> init_cache 256 64 1
+
+# 2. Enable Virtual Memory (Page Size = 64 bytes)
+> init_mmu 64
+
+# 3. Write to Virtual Address 0
+> access 0 w
+>> Page Fault! VPN 0 not in memory.
+Allocated 64 bytes at Address 0
+>> Page 0 loaded into Frame at 0
+[MMU] VA 0 -> VPN 0 -> PA 0
+Access 0 (write) processed.
+
+# 4. View Page Table
+> pt_dump
+VPN   | Valid | Frame | Dirty | LRU Time
+    0 |     1 |     0 |     1 |        1
+```
