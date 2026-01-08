@@ -37,10 +37,10 @@ To clean build artifacts:
 
 make clean
 ```
-##📖 Usage Modes
+## 📖 Usage Modes
 The simulator is flexible and can be run in three distinct modes depending on which components you initialize.
 
-###Mode 1: Physical Memory Allocator (Malloc/Free)
+### Mode 1: Physical Memory Allocator (Malloc/Free)
 Focus: Understanding fragmentation and allocation strategies.
 
 In this mode, you interact directly with physical memory. You can allocate blocks, free them, and observe how different strategies (First Fit, Best Fit, Worst Fit) affect memory layout and fragmentation.
@@ -71,7 +71,7 @@ Block at Address 100 freed.
 [100 - 299] FREE
 [300 - 1023] FREE
 ```
-###Mode 2: Cache Simulation (Physical Addressing)
+### Mode 2: Cache Simulation (Physical Addressing)
 Focus: Cache hits, misses, and associativity.
 
 In this mode, you enable the Cache Controller. Memory accesses are simulated as Physical Addresses. You can see how data moves from Main Memory → L2 → L1.
@@ -102,7 +102,7 @@ Access 10 (read) processed.
 > cache_stats
 L1 Stats: Hits: 1, Misses: 1, Hit Rate: 50.00%
 ```
-###Mode 3: Full System (Virtual Memory + MMU)
+### Mode 3: Full System (Virtual Memory + MMU)
 Focus: Paging, Address Translation, and Page Faults.
 
 This is the complete simulation. You issue Virtual Addresses. The MMU translates them to Physical Addresses (handling Page Faults if necessary), and then requests data from the Cache.
