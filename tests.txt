@@ -1,0 +1,112 @@
+# --- RESET SYSTEM ---
+init standard 1024
+
+# --- TEST 1: ALLOCATION & FREEING ---
+# Allocate three blocks
+malloc 100
+malloc 200
+malloc 50
+
+# Check Layout: Should see blocks at 0, 100, 300
+dump
+
+# Free the middle block to create a "hole"
+free 100
+dump
+
+# --- TEST 2: STRATEGY CHANGES (Best Fit) ---
+# We have a hole of size 200 at Address 100.
+# We have a huge free space at the end (size 674).
+
+# default is FIRST FIT: 
+# malloc 120 would put it in the first hole (Address 100).
+malloc 120
+dump
+# Free it again to restore the hole
+free 100
+
+# Switch to WORST FIT:
+# malloc 120 should skip the small hole (200) and pick the huge space at the end.
+set allocator worst
+malloc 120
+dump
+
+# Switch to BEST FIT:
+# malloc 50 should pick the smallest adequate hole. 
+# (We have a remaining hole at 100 of size 200).
+set allocator best
+malloc 190
+dump
+
+stats
+
+# --- RESET SYSTEM ---
+init standard 1024
+# Init Cache: 64 bytes total, 16 bytes/block, 2-way associative
+# This means we have only 2 Sets (Set 0 and Set 1).
+init_cache 64 16 2
+
+# Allocate memory so accesses are valid
+malloc 512
+
+# --- TEST 3: COMPULSORY MISSES ---
+# Access Address 0 (Block 0, Set 0) -> Miss
+access 0 r
+# Access Address 16 (Block 1, Set 1) -> Miss
+access 16 r
+
+# --- TEST 4: HITS ---
+# Access Address 2 (Same Block as Address 0) -> Hit
+access 2 r
+# Access Address 0 again -> Hit
+access 0 w
+
+# --- TEST 5: CONFLICT & LRU REPLACEMENT ---
+# We fill Set 0 (which has 2 ways). 
+# Currently Set 0 has Block 0.
+# Add Block 2 (Addr 32) -> Set 0 -> Miss (Set 0 is now full: Block 0 + Block 2)
+access 32 r
+
+# Add Block 4 (Addr 64) -> Set 0 -> Miss -> EVICTS LRU (Block 0)
+access 64 r
+
+# Verify Block 0 is gone (Should be a Miss)
+access 0 r
+
+cache_stats
+
+# --- RESET SYSTEM ---
+# Tiny memory (256B) to force page eviction quickly.
+init standard 256
+init_cache 128 32 2
+# Page Size 64B. Total Frames = 256/64 = 4 Frames.
+init_mmu 64
+
+# --- TEST 6: PAGE FAULTS (FILLING MEMORY) ---
+# VPN 0 -> Fault -> Frame 0
+access 10 w
+# VPN 1 -> Fault -> Frame 64
+access 70 r
+# VPN 2 -> Fault -> Frame 128
+access 130 r
+# VPN 3 -> Fault -> Frame 192
+access 200 r
+
+# Check: Memory is now FULL (4 frames used).
+pt_dump
+
+# --- TEST 7: PAGE REPLACEMENT ---
+# Access VPN 4 (Address 260).
+# Memory full. Must evict VPN 0 (LRU).
+access 260 r
+
+# Verify VPN 0 is invalid and VPN 4 is valid
+pt_dump
+
+# --- TEST 8: TRANSLATION & CACHE INTEGRATION ---
+# Access VPN 4 again. 
+# TLB Hit (no fault) -> Physical Address Calculated -> Cache Access
+access 262 r
+
+stats
+exit
