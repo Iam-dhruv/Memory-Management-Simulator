@@ -90,18 +90,23 @@ Standard Allocator Initialized (1024 bytes).
 Cache Initialized (L1: 64B, L2: 512B).
 -> Linked to Active Memory.
 # 3. Access Physical Address 10 (Read)
+> malloc 16
+Allocated 16 bytes at 0 (ID = 1)
+> malloc 16
+Allocated 16 bytes at 16 (ID = 2)
 > access 10 r
---- L2 MISS! Accessing Main Memory ---
->> Main Memory: Fetching data...
-Access 10 (read) processed.
-
+[Physical Access] --- CACHE MISS! Accessing Main Memory at 10 ---
+>> Main Memory: Fetching data from valid block.
 # 4. Access Address 10 again (Should be a HIT)
 > access 10 r
-Access 10 (read) processed.
+[Physical Access] --- L1 HIT ---
 
 # 5. View Stats
 > cache_stats
+--- Cache Statistics ---
 L1 Stats: Hits: 1, Misses: 1, Hit Rate: 50.00%
+L2 Stats: Hits: 0, Misses: 1, Hit Rate: 0.00%
+------------------------
 ```
 ### Mode 3: Full System (Virtual Memory + MMU)
 Focus: Paging, Address Translation, and Page Faults.
@@ -116,21 +121,27 @@ Example Session:
 
 # 1. Init Memory & Cache
 > init standard 1024
+Standard Allocator Initialized (1024 bytes).
 > init_cache 256 64 1
-
+Cache Initialized (L1: 256B, L2: 2048B).
+-> Linked to Active Memory.
 # 2. Enable Virtual Memory (Page Size = 64 bytes)
 > init_mmu 64
-
+MMU Initialized with Page Size: 64 bytes
+Virtual Addressing Enabled.
 # 3. Write to Virtual Address 0
 > access 0 w
 >> Page Fault! VPN 0 not in memory.
-Allocated 64 bytes at Address 0
+Allocated 64 bytes at 0 (ID = 1)
 >> Page 0 loaded into Frame at 0
-[MMU] VA 0 -> VPN 0 -> PA 0
-Access 0 (write) processed.
+   [MMU] VA 0 -> VPN 0 -> PA 0
+--- CACHE MISS! Accessing Main Memory at 0 ---
+>> Main Memory: Fetching data from valid block.
 
 # 4. View Page Table
 > pt_dump
+--- Page Table ---
 VPN   | Valid | Frame | Dirty | LRU Time
     0 |     1 |     0 |     1 |        1
+------------------
 ```
